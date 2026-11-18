@@ -1,0 +1,42 @@
+'forge clean' running (wd: /workspace/agentid-hack/agentgig)
+'forge config --json' running
+'forge build --build-info --deny never --skip ./test/** ./script/** --force' running (wd: /workspace/agentid-hack/agentgig)
+INFO:Detectors:
+Detector: incorrect-equality
+AgentGig.onlyAgent() (src/AgentGig.sol#110-113) uses a dangerous strict equality:
+	- AGENT_ID.balanceOf(msg.sender) == 0 (src/AgentGig.sol#111)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#dangerous-strict-equalities
+INFO:Detectors:
+Detector: reentrancy-benign
+Reentrancy in AgentGig._pay(address,address,uint256) (src/AgentGig.sol#330-338):
+	External calls:
+	- (ok,None) = to.call{value: amount}() (src/AgentGig.sol#333)
+	State variables written after the call(s):
+	- owed[to] += amount (src/AgentGig.sol#334)
+Reentrancy in AgentGig.post(address,uint256,uint64,string) (src/AgentGig.sol#135-171):
+	External calls:
+	- _safeTransferFrom(token,msg.sender,address(this),amount) (src/AgentGig.sol#155)
+		- (ok,ret) = token.call(abi.encodeWithSelector(0x23b872dd,from,to,amount)) (src/AgentGig.sol#346)
+	State variables written after the call(s):
+	- t = _tasks.push() (src/AgentGig.sol#161)
+	- rep[msg.sender].posted ++ (src/AgentGig.sol#168)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+INFO:Detectors:
+Detector: timestamp
+AgentGig.cancel(uint256) (src/AgentGig.sol#174-188) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp <= t.deadline (src/AgentGig.sol#180)
+AgentGig.reject(uint256,string) (src/AgentGig.sol#193-205) uses timestamp for comparisons
+	Dangerous comparisons:
+	- t.deadline < minDeadline (src/AgentGig.sol#202)
+AgentGig.claim(uint256) (src/AgentGig.sol#210-218) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > t.deadline (src/AgentGig.sol#213)
+AgentGig.submit(uint256,bytes32,string) (src/AgentGig.sol#232-244) uses timestamp for comparisons
+	Dangerous comparisons:
+	- block.timestamp > t.deadline (src/AgentGig.sol#236)
+AgentGig.release(uint256) (src/AgentGig.sol#250-262) uses timestamp for comparisons
+	Dangerous comparisons:
+	- msg.sender != t.poster && block.timestamp <= t.reviewBy (src/AgentGig.sol#253)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Slither:. analyzed (3 contracts with 81 detectors), 8 result(s) found
